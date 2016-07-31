@@ -1,0 +1,2 @@
+# TrainingLeaderMinion
+Leader minion service.
