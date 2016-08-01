@@ -15,8 +15,14 @@ var minionDetails = [
 ];
 
 var memoryOperations = {
-    getMyId: function(){
+    getMyId: function () {
         return myId
+    },
+    getAllMinionIds: function () {
+        var finalList = [];
+        minionDetails.forEach(function (minionJson) {
+            finalList.push(minionJson.minionId);
+        });
     },
     getIdleMinion: function () {
         for (var minionJson in minionDetails) {
@@ -24,11 +30,18 @@ var memoryOperations = {
                 return minionJson["minionId"];
             }
         }
+        return null;
+    },
+    getMinionDetails: function(minionId){
+        for (var minionJson in minionDetails) {
+            if (minionJson["minionId"] === minionId) {
+                return minionJson;
+            }
+        }
     },
     createMinionProcess: function (sessionId, res) {
         var highestPort = 0;
-        console.log(minionDetails);
-        
+
         minionDetails.forEach(function (minionJson) {
             var port = parseInt(minionJson["minionId"].split(":")[1]);
             highestPort = port > highestPort ? port : highestPort;
@@ -41,9 +54,9 @@ var memoryOperations = {
 
         return minionPort;
     },
-    createMinionInMemory: function (minionPort) {
+    createMinionInMemory: function (minionId) {
         var newMinionJson = {
-            "minionId": myId + ":" + minionPort,
+            "minionId": minionId,
             "trainingSessions": [],
             "runningSessions": []
         }
@@ -62,7 +75,28 @@ var memoryOperations = {
                 minionJson.runningSessions.push(sessionId);
             }
         });
+    },
+    getMinionWithTrainingSession: function (sessionId) {
+        minionDetails.forEach(function (minionJson) {
+            minionJson.trainingSessions.forEach(function (tSessionId) {
+                if (tSessionId === sessionId) {
+                    return minionJson.minionId;
+                }
+            });
+        });
+        return null;
+    },
+    getMinionWithRunningSession: function (sessionId) {
+        minionDetails.forEach(function (minionJson) {
+            minionJson.runningSessions.forEach(function (rSessionId) {
+                if (rSessionId === sessionId) {
+                    return minionJson.minionId;
+                }
+            });
+        });
+        return null;
     }
+
 
 };
 

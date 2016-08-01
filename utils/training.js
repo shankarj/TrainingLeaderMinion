@@ -3,84 +3,45 @@ var config = require('../config.js');
 var memory = require('../memory.js');
 
 var utilMethods = {
-	deleteTrainingSession: function (sessionId, minionLeaderId, resObject) {
-		var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
+    postMinionCreationRoutine: function (minionId, sessionId, res) {
+		var minionUrl = "http://" + minionId;
 		var options = {
-			url: minionLeaderUrl + "/delete/",
-			method: 'POST',
-			json: {
-				"sessionid": sessionId,
-				"authtoken": ""
-			}
+			url: minionUrl + "/minion/health/",
+			method: 'GET',
 		};
 
 		request(options, function (error, response, body) {
-			var successDelete = false;
+			var result = { status: "", message: null };
 			if (!error && response.statusCode == 200) {
-				successDelete = true;
+				memory.createMinionInMemory(minionId);
+				memory.addTrainingSessionToMinion(minionId, sessionId);
+				utilMethods.callTrainOnMinion(minionId, sessionId, res);
+			} else {
+				result.status = "error";
+				result.message = "Error while calling minion for health check.";
 			}
 
-			var retMsg = successDelete ? "Deleted successfully : " + sessionId : "Delete failed : " + sessionId;
-			resObject.json({ status: "success", message: retMsg });
+			res.json(result);
 		});
-	},
-	deleteAndCreateSession: function (sessionId, minionId, resObject, scheduleStrategy) {
-		var minionLeaderUrl = "http://" + minionId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
+    },
+	callTrainOnMinion: function (minionId, sessionId, res) {
+		var minionUrl = "http://" + minionId;
 		var options = {
-			url: minionLeaderUrl + "/delete/",
-			method: 'POST',
-			json: {
-				"sessionid": sessionId,
-				"authtoken": ""
-			}
+			url: minionUrl + "/minion/train/" + sessionId,
+			method: 'GET',
 		};
 
 		request(options, function (error, response, body) {
-			var successDelete = false;
+			var result = { status: "", message: null };
 			if (!error && response.statusCode == 200) {
-				successDelete = true;
-				utilMethods.createSession(sessionId, resObject, scheduleStrategy);
+				result = body;
+			} else {
+				result.status = "error";
+				result.message = "Error while calling training on the minion.";
 			}
+
+			res.json(result);
 		});
-	},
-	createSession: function (sessionId, resObject, scheduleStrategy) {
-		var strategy = scheduleStrategy === undefined ? config[process.env.environment].trainingScheduleStrategy : scheduleStrategy;
-		var choosenHost = memory.getBestFitHost();
-
-		if (choosenHost == null) {
-			resObject.json({ status: "error", message: "No minions available for training." });
-		}
-
-		var scheduleTraining = true;
-		if ((choosenHost.trainingSessions.length >= choosenHost.maxMinionsCount) && (strategy != "force")) {
-			scheduleTraining = false;
-		}
-
-		if (scheduleTraining) {
-			var minionLeaderId = choosenHost.leaderId;
-			var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
-			var options = {
-				url: minionLeaderUrl + "/start/",
-				method: 'POST',
-				json: {
-					"sessionid": sessionId,
-					"authtoken": ""
-				}
-			};
-
-			request(options, function (error, response, body) {
-				var successDelete = false;
-				if (!error && response.statusCode == 200) {
-					// Update model
-					memory.addTrainingSessionToLeader(sessionId, minionLeaderId);
-					resObject.end(body);
-				} else {
-					resObject.json({ status: "success", message: "Error while trying to contact minion for training." });
-				}
-			});
-		} else {
-			resObject.json({ status: "error", message: "No minions available for training. Try force scheduling." });
-		}
 	}
 };
 

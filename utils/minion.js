@@ -4,6 +4,24 @@ var memory = require('../memory.js');
 var genUtils = require('../utils/general.js');
 
 var utilMethods = {
+    healthCheck: function (minionId, res) {
+		var minionUrl = "http://" + minionId;
+		var options = {
+			url: minionUrl + "/minion/health/",
+			method: 'GET',
+		};
+
+		request(options, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				res.json(body);
+			} else {
+				var result = { status: "", message: null };
+				result.status = "error";
+				result.message = "Error while calling minion for health check.";
+				res.json(result);
+			}
+		});
+	},
     getMinionList: function (minionId, res) {
         var minionLeaderId = minionId.split(":")[0];
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
