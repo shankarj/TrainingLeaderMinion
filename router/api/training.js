@@ -9,7 +9,7 @@ var sleep = require('sleep');
 var router = express.Router();
 
 router.post('/start/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for run." };
 		res.json(response);
 	} else {
@@ -29,7 +29,7 @@ router.post('/start/', function (req, res, next) {
 });
 
 router.post('/pause/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for pause." };
 		res.json(response);
 	} else {
@@ -56,7 +56,7 @@ router.post('/pause/', function (req, res, next) {
 
 
 router.post('/stop/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for stop." };
 		res.json(response);
 	} else {
@@ -82,7 +82,7 @@ router.post('/stop/', function (req, res, next) {
 });
 
 router.post('/delete/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for delete." };
 		res.json(response);
 	} else {

@@ -8,7 +8,7 @@ var genUtils = require('../../utils/general.js');
 var config = require('../../config.js');
 
 router.post('/create/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for create minion." };
 		res.json(response);
 	} else {
@@ -21,7 +21,7 @@ router.post('/create/', function (req, res, next) {
 
 
 router.post('/minionofsession/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get minion of a session." };
 		res.json(response);
 	} else {
@@ -54,7 +54,7 @@ router.post('/all/', function (req, res, next) {
 });
 
 router.post('/details/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.minionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.minionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get details of minion." };
 		res.json(response);
 	} else {
