@@ -13,7 +13,11 @@ var utilMethods = {
 
 		request(options, function (error, response, body) {
 			if (!error && response.statusCode == 200) {
-				res.json(body);
+                var result = { status: "", message: null };
+                var jsonObj = JSON.parse(body);
+                result.status = "success";
+				result.message = jsonObj.message;
+                res.json(result);
 			} else {
 				var result = { status: "", message: null };
 				result.status = "error";

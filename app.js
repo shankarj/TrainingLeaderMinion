@@ -38,7 +38,7 @@ app.use(function(req, res, next) {
 // error handlers
 
 if (app.get('env') === 'development') {
-  console.log("Core API Server - Development set at port : " + process.env.PORT);
+  console.log("Training leader - Development set at port : " + process.env.PORT);
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
@@ -47,7 +47,7 @@ if (app.get('env') === 'development') {
     });
   });
 }else if (app.get('env') === 'production'){
-  console.log("Core API Server - Production set at port : " + process.env.PORT);
+  console.log("Training leader - Production set at port : " + process.env.PORT);
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
@@ -57,5 +57,5 @@ if (app.get('env') === 'development') {
   });
 }
 
-console.log("Core API Server - Started");
+console.log("Training leader - Started");
 module.exports = app;

@@ -3,14 +3,24 @@ var config = require('./config.js');
 var process = require('child_process');
 
 // Leader id.
-var myId = "leaderId";
+var myId = "localhost:8081";
 
 // Details of all the minions running in the host. 
 var minionDetails = [
     {
-        "minionId": "leaderId:8000",
-        "trainingSessions": [],
+        "minionId": "localhost:8082",
+        "trainingSessions": ["sampleSession"],
         "runningSessions": []
+    },
+    {
+        "minionId": "localhost:8083",
+        "trainingSessions": ["sampleSession2"],
+        "runningSessions": []
+    },
+    {
+        "minionId": "localhost:8084",
+        "trainingSessions": [],
+        "runningSessions": ["sampleSession3"]
     }
 ];
 
@@ -23,6 +33,7 @@ var memoryOperations = {
         minionDetails.forEach(function (minionJson) {
             finalList.push(minionJson.minionId);
         });
+        return finalList;
     },
     getIdleMinion: function () {
         for (var minionJson in minionDetails) {
@@ -30,14 +41,19 @@ var memoryOperations = {
                 return minionJson["minionId"];
             }
         }
-        return null;
     },
-    getMinionDetails: function(minionId){
-        for (var minionJson in minionDetails) {
+    getAllMinionDetails: function () {
+        return minionDetails;
+    },
+    getMinionDetails: function (minionId) {
+        var retVal = null;
+        minionDetails.forEach(function (minionJson) {
             if (minionJson["minionId"] === minionId) {
-                return minionJson;
+                retVal = minionJson;
             }
-        }
+        });
+
+        return retVal;
     },
     createMinionProcess: function (sessionId, res) {
         var highestPort = 0;
@@ -77,24 +93,28 @@ var memoryOperations = {
         });
     },
     getMinionWithTrainingSession: function (sessionId) {
+        var minionId = null;
         minionDetails.forEach(function (minionJson) {
             minionJson.trainingSessions.forEach(function (tSessionId) {
                 if (tSessionId === sessionId) {
-                    return minionJson.minionId;
+                    minionId = minionJson.minionId;
                 }
             });
         });
-        return null;
+
+        return minionId;
     },
     getMinionWithRunningSession: function (sessionId) {
+        var minionId = null;
         minionDetails.forEach(function (minionJson) {
             minionJson.runningSessions.forEach(function (rSessionId) {
                 if (rSessionId === sessionId) {
-                    return minionJson.minionId;
+                    minionId = minionJson.minionId;
                 }
             });
         });
-        return null;
+
+        return minionId;
     }
 
 
