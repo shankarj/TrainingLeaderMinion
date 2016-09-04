@@ -1,27 +1,12 @@
 var genUtils = require('./utils/general.js');
 var config = require('./config.js');
-var process = require('child_process');
+var processes = require('child_process');
 
 // Leader id.
 var myId = "localhost:8081";
 
 // Details of all the minions running in the host. 
 var minionDetails = [
-    {
-        "minionId": "localhost:8082",
-        "trainingSessions": ["sampleSession"],
-        "runningSessions": []
-    },
-    {
-        "minionId": "localhost:8083",
-        "trainingSessions": ["sampleSession2"],
-        "runningSessions": []
-    },
-    {
-        "minionId": "localhost:8084",
-        "trainingSessions": [],
-        "runningSessions": ["sampleSession3"]
-    }
 ];
 
 var memoryOperations = {
@@ -36,7 +21,7 @@ var memoryOperations = {
         return finalList;
     },
     getIdleMinion: function () {
-        for (var minionJson in minionDetails) {
+        for (var minionJson of minionDetails) {
             if (minionJson["trainingSessions"].length == 0) {
                 return minionJson["minionId"];
             }
@@ -55,7 +40,7 @@ var memoryOperations = {
 
         return retVal;
     },
-    createMinionProcess: function (sessionId, res) {
+    createMinionProcess: function () {
         var highestPort = 0;
 
         minionDetails.forEach(function (minionJson) {
@@ -65,8 +50,8 @@ var memoryOperations = {
 
         var minionPort = highestPort == 0 ? config[process.env.environment].startingMinionPort : highestPort + 1;
         var minionProcessPath = __dirname.replace("TrainingLeaderMinion", "TrainingMinion/");
-
-        process.spawn("python3", [minionProcessPath + "server.py", minionPort], { encoding: 'utf8' });
+        var minionId = myId.split(":")[0] + ":" + minionPort
+        processes.spawn("python3", [minionProcessPath + "server.py", minionPort, minionId], { encoding: 'utf8' });
 
         return minionPort;
     },
@@ -84,6 +69,16 @@ var memoryOperations = {
                 minionJson.trainingSessions.push(sessionId);
             }
         });
+    },
+    removeTrainingSessionFromLeader: function (minionId, sessionId) {
+         for (var minionJson of minionDetails){ 
+            if (minionJson["minionId"] === minionId) {
+                var index = minionJson.trainingSessions.indexOf(sessionId);
+                if (index != -1){
+                    minionJson.trainingSessions.splice(index, 1);
+                }
+            }
+        }
     },
     addRunningSessionToMinion: function (minionId, sessionId) {
         minionDetails.forEach(function (minionJson) {

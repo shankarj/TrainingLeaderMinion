@@ -12,7 +12,7 @@ router.post('/create/', function (req, res, next) {
 		var response = { status: "error", message: "One or more required params not provided for create minion." };
 		res.json(response);
 	} else {
-		var port = memory.createMinionProcess(res);
+		var port = memory.createMinionProcess();
 		sleep.sleep(1);
 		var minionId = memory.getMyId().split(":")[0] + ":" + port;
 		memory.createMinionInMemory(minionId);

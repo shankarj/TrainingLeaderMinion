@@ -3,7 +3,7 @@ var config = require('../config.js');
 var memory = require('../memory.js');
 
 var utilMethods = {
-    postMinionCreationRoutine: function (minionId, sessionId, res) {
+    postMinionCreationRoutineToTrain: function (minionId, sessionId, res) {
 		var minionUrl = "http://" + minionId;
 		var options = {
 			url: minionUrl + "/minion/health/",
@@ -19,9 +19,8 @@ var utilMethods = {
 			} else {
 				result.status = "error";
 				result.message = "Error while calling minion for health check.";
+				res.json(result);
 			}
-
-			res.json(result);
 		});
     },
 	callTrainOnMinion: function (minionId, sessionId, res) {
