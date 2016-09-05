@@ -14,7 +14,7 @@ router.post('/notifydone/', function(req, res, next) {
 		res.json(response);
 	}else{
 		memory.addRunningSessionToMinion(req.body.minionid, req.body.sessionid);
-		memory.removeTrainingSessionFromLeader(req.body.minionid, req.body.sessionid);
+		memory.removeTrainingSessionFromMinion(req.body.minionid, req.body.sessionid);
 
 		var minionUrl = "http://" + config[process.env.environment].gruId;
 		var options = {
@@ -120,22 +120,43 @@ router.post('/delete/', function (req, res, next) {
 	} else {
 		var minionId = memory.getMinionWithTrainingSession(req.body.sessionid);
 
-		var minionUrl = "http://" + minionId;
-		var options = {
-			url: minionUrl + "/minion/delete/" + req.body.sessionid,
-			method: 'GET',
-		};
+		if (minionId != null){
+			// Error. The service is being trained somewhere already.
+			res.json({ status : "error", message : "This service is being trained already. Delete it before issuing a new training request."});
+		}else{
+			// If session is already running in a minion then delete it locally and at the minion.
+			minionId = memory.getMinionWithRunningSession(req.body.sessionid);
+			
+			if (minionId != null){
+				var minionUrl = "http://" + minionId;
+				var options = {
+					url: minionUrl + "/minion/delete/" + req.body.sessionid,
+					method: 'GET',
+				};
 
-		request(options, function (error, response, body) {
-			var result = { status: "", message: null };
-			if (!error && response.statusCode == 200) {
-				result = body;
-			} else {
-				result.status = "error";
-				result.message = body;
+				request(options, function (error, response, body) {
+					var result = { status: "", message: null };
+					var resJson = JSON.parse(body);
+					if (!error && response.statusCode == 200) {
+						if (resJson.status == "success"){
+							// Remove from running sessions in minion
+							memory.removeRunningSessionFromMinion(minionId, req.body.sessionid);
+							result.status = "success";
+						}else{
+							result.status = "error";
+						}
+						result.message = resJson.message;
+					} else {
+						result.status = "error";
+						result.message = "Error while contacting minion to delete the running session " + req.body.sessionid;
+					}
+					res.json(result);
+				});
+			}else{
+				res.json({ status: "error", message: "Could not find minion running the given session id." });
 			}
-			res.json(result);
-		});
+		}
+		
 	}
 });
 

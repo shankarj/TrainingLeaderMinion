@@ -51,7 +51,7 @@ var memoryOperations = {
         var minionPort = highestPort == 0 ? config[process.env.environment].startingMinionPort : highestPort + 1;
         var minionProcessPath = __dirname.replace("TrainingLeaderMinion", "TrainingMinion/");
         var minionId = myId.split(":")[0] + ":" + minionPort
-        processes.spawn("python3", [minionProcessPath + "server.py", minionPort, minionId], { encoding: 'utf8' });
+        processes.spawn("python3", [minionProcessPath + "server.py", minionId], { encoding: 'utf8' });
 
         return minionPort;
     },
@@ -70,7 +70,7 @@ var memoryOperations = {
             }
         });
     },
-    removeTrainingSessionFromLeader: function (minionId, sessionId) {
+    removeTrainingSessionFromMinion: function (minionId, sessionId) {
          for (var minionJson of minionDetails){ 
             if (minionJson["minionId"] === minionId) {
                 var index = minionJson.trainingSessions.indexOf(sessionId);
@@ -86,6 +86,16 @@ var memoryOperations = {
                 minionJson.runningSessions.push(sessionId);
             }
         });
+    },
+    removeRunningSessionFromMinion: function (minionId, sessionId) {
+         for (var minionJson of minionDetails){ 
+            if (minionJson["minionId"] === minionId) {
+                var index = minionJson.runningSessions.indexOf(sessionId);
+                if (index != -1){
+                    minionJson.runningSessions.splice(index, 1);
+                }
+            }
+        }
     },
     getMinionWithTrainingSession: function (sessionId) {
         var minionId = null;
