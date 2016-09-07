@@ -23,7 +23,11 @@ router.post('/notifydone/', function(req, res, next) {
 			json: {
 				"sessionid": req.body.sessionid,
 				"leaderid": memory.getMyId(),
-				"minionid": req.body.minionid
+				"minionid": req.body.minionid,
+				"parent_id": req.body.parent_id,
+				"project_name": req.body.project_name,
+				"network_structure": req.body.network_structure,
+				"network_conns": req.body.network_conns
 			}
 		};
 
