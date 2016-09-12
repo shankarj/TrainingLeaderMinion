@@ -27,7 +27,8 @@ router.post('/notifydone/', function(req, res, next) {
 				"parent_id": req.body.parent_id,
 				"project_name": req.body.project_name,
 				"network_structure": req.body.network_structure,
-				"network_conns": req.body.network_conns
+				"network_conns": req.body.network_conns,
+				"create_new_snapshot": req.body.create_new_snapshot
 			}
 		};
 
@@ -140,8 +141,8 @@ router.post('/delete/', function (req, res, next) {
 
 				request(options, function (error, response, body) {
 					var result = { status: "", message: null };
-					var resJson = JSON.parse(body);
 					if (!error && response.statusCode == 200) {
+						var resJson = JSON.parse(body);
 						if (resJson.status == "success"){
 							// Remove from running sessions in minion
 							memory.removeRunningSessionFromMinion(minionId, req.body.sessionid);
