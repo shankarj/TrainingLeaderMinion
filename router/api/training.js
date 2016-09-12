@@ -13,8 +13,11 @@ router.post('/notifydone/', function(req, res, next) {
 		var response = { status : "error", message : "One or more required params not provided for notifydone."};
 		res.json(response);
 	}else{
-		memory.addRunningSessionToMinion(req.body.minionid, req.body.sessionid);
 		memory.removeTrainingSessionFromMinion(req.body.minionid, req.body.sessionid);
+
+		if (req.body.training_success){
+			memory.addRunningSessionToMinion(req.body.minionid, req.body.sessionid);
+		}
 
 		var minionUrl = "http://" + config[process.env.environment].gruId;
 		var options = {
@@ -28,7 +31,8 @@ router.post('/notifydone/', function(req, res, next) {
 				"project_name": req.body.project_name,
 				"network_structure": req.body.network_structure,
 				"network_conns": req.body.network_conns,
-				"create_new_snapshot": req.body.create_new_snapshot
+				"create_new_snapshot": req.body.create_new_snapshot,
+				"training_success": req.body.training_success
 			}
 		};
 
